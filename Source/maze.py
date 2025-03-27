@@ -95,7 +95,7 @@ class Maze:
         """Tạo một chuồng ngẫu nhiên"""
         width, height = size
 
-        print(f"Generating cage at ({x}, {y}) with size {size}")
+        # print(f"Generating cage at ({x}, {y}) with size {size}")
         # Tạo tường ở biên
         for i in range(x, x + width):
             self.tag((i, y), outer=True)

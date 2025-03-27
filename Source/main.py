@@ -189,7 +189,7 @@ def main():
                 elif event.key == pygame.K_SPACE:
                     if pacman_pos is not None:
                         if ghost is None:
-                            ghost = Ghost(selected_algorithm, (0, 0))
+                            ghost = Ghost(selected_algorithm, (1, 1))
                             ghost.find_path(maze, pacman_pos, screen, font)
                         ghost.start()
                     else:
@@ -200,7 +200,7 @@ def main():
                 if not maze.is_wall((grid_x, grid_y)):
                     pacman_pos = (grid_x, grid_y)
                     if ghost is not None:
-                        ghost = Ghost(selected_algorithm, (0, 0))
+                        ghost = Ghost(selected_algorithm, (1, 1))
                         ghost.find_path(maze, pacman_pos, screen, font)
         
         # Draw everything

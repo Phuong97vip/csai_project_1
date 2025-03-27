@@ -1,6 +1,6 @@
 # Source\maze.py
 import numpy as np
-import time
+import random
 
 class Maze:
     def __init__(self, width=20, height=20):
@@ -62,13 +62,17 @@ class Maze:
 
     def generate(self):
         """Tạo một mê cung ngẫu nhiên"""
-        import random
-        sizes = [(5,2), (2,5), (2,2), (3,4), (4,3), (1,3), (3,1), (1,4), (4,1), (1,5), (5,1), (1,2), (2,1), (2,3), (3,2)] 
+ 
+        sizes = [(5,3), (3,5), (2,2), (3,4), (4,3), (1,3), (3,1), (1,4), (4,1), (1,5), (5,1), (1,2), (2,1), (2,3), (3,2)] 
         for i in range( 2, self.width - 2):
             for j in range(2, self.height - 2):
                 if self.tagged[j][i] == 0:
                     size = random.choice(sizes)
-                    self.generate_loop_cluster(i, j, size)
+                    if (size[0] >= 3 and size[1] >= 3):
+                        self.generate_cage_cluster(i, j, size)
+                    else:
+                        self.generate_loop_cluster(i, j, size)
+                    # self.generate_loop_cluster(i, j, size)
 
 
     def generate_loop_cluster(self, x, y, size):
@@ -85,6 +89,42 @@ class Maze:
                 self.tag((i, j))
 
         # Đánh dấu xung quanh
+        self.tag_outer_walls((x, y), size)
+
+    def generate_cage_cluster(self, x, y, size):
+        """Tạo một chuồng ngẫu nhiên"""
+        width, height = size
+
+        print(f"Generating cage at ({x}, {y}) with size {size}")
+        # Tạo tường ở biên
+        for i in range(x, x + width):
+            self.tag((i, y), outer=True)
+            self.tag((i, y + height - 1), outer=True)
+
+        for j in range(y, y + height):
+            self.tag((x, j), outer=True)
+            self.tag((x + width - 1, j), outer=True)
+
+        holes_count = random.randint(1, 4)
+        for _ in range(holes_count):
+            hole_x = random.randint(x, x + width - 1)
+            if (hole_x == x or hole_x == x + width - 1):
+                hole_y = random.randint(y + 1, y + height - 2)
+                self.tag((hole_x, hole_y), value=0)    
+            else:
+                hole_y = random.choice([y, y + height - 1])
+                self.tag((hole_x, hole_y), value=0)    
+
+        for i in range(x + 1, x + width - 1):
+            for j in range(y + 1, y + height - 1):
+                self.tag_no_change((i, j))
+
+        # Đánh dấu xung quanh
+        self.tag_outer_walls((x, y), size)
+
+    def tag_outer_walls(self, position, size):
+        width, height = size
+        x, y = position
         for i in range(x - 1, x + width + 1):
             self.tag_no_change((i, y - 1), outer=True)
             self.tag_no_change((i, y + height), outer=True)

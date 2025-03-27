@@ -1,6 +1,26 @@
+# Source\search_algorithms.py
 from collections import deque
 import heapq
+import time
+import sys
+import tracemalloc
 
+def measure_performance(func):
+    """Decorator to measure time, memory and expanded nodes"""
+    def wrapper(maze, start, goal):
+        tracemalloc.start()
+        start_time = time.time()
+        
+        path, expanded_nodes = func(maze, start, goal)
+        
+        search_time = time.time() - start_time
+        current, peak = tracemalloc.get_traced_memory()
+        tracemalloc.stop()
+        
+        return path, expanded_nodes, search_time, peak / 1024  # Convert to KB
+    return wrapper
+
+@measure_performance
 def bfs(maze, start, goal):
     """Breadth-First Search implementation"""
     queue = deque()
@@ -31,6 +51,7 @@ def bfs(maze, start, goal):
         
     return path, expanded_nodes
 
+@measure_performance
 def dfs(maze, start, goal):
     """Depth-First Search implementation"""
     stack = [start]
@@ -49,8 +70,9 @@ def dfs(maze, start, goal):
             path.reverse()
             return path, expanded_nodes
 
+        # Get neighbors and reverse to maintain order
         neighbors = maze.get_neighbors(current)
-        neighbors.sort(key=lambda pos: abs(pos[0]-goal[0]) + abs(pos[1]-goal[1]), reverse=True)
+        neighbors.reverse()
 
         for neighbor in neighbors:
             if neighbor not in visited:
@@ -59,6 +81,7 @@ def dfs(maze, start, goal):
 
     return [], expanded_nodes
 
+@measure_performance
 def ucs(maze, start, goal):
     """Uniform-Cost Search implementation"""
     heap = []
@@ -88,4 +111,3 @@ def ucs(maze, start, goal):
         path.reverse()
         
     return path, expanded_nodes
-

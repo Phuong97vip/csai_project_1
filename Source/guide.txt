@@ -1,0 +1,3 @@
+python main.py --algorithm BFS
+python main.py --algorithm DFS
+python main.py --algorithm UCS

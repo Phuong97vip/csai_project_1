@@ -111,3 +111,39 @@ def ucs(maze, start, goal):
         path.reverse()
         
     return path, expanded_nodes
+
+def heuristic(a, b):
+    """Heuristic function using Manhattan distance"""
+    return abs(a[0] - b[0]) + abs(a[1] - b[1])
+@measure_performance
+def a_star(maze, start, goal):
+    """A* Search Algorithm"""
+    heap = []
+    heapq.heappush(heap, (0, start))  # (cost, node)
+    visited = {start: (None, 0)}  # {node: (previous_node, g_cost)}
+    expanded_nodes = 0
+    
+    while heap:
+        current_cost, current = heapq.heappop(heap)
+        expanded_nodes += 1
+        
+        if current == goal:
+            break
+        
+        for neighbor in maze.get_neighbors(current):
+            new_cost = visited[current][1] + 1  # g(n) = g(current) + 1
+            f_cost = new_cost + heuristic(neighbor, goal)  # f(n) = g(n) + h(n)
+            
+            if neighbor not in visited or new_cost < visited[neighbor][1]:
+                visited[neighbor] = (current, new_cost)
+                heapq.heappush(heap, (f_cost, neighbor))
+    
+    path = []
+    if goal in visited:
+        current = goal
+        while current != start:
+            path.append(current)
+            current = visited[current][0]
+        path.reverse()
+    
+    return path, expanded_nodes

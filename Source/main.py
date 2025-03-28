@@ -88,6 +88,10 @@ class Ghost:
         if self.path:
             next_pos = self.path[0]
             if next_pos in other_ghost_positions:
+                modded_maze = maze.copy()
+                for ghost_pos in other_ghost_positions:
+                    modded_maze.tag(ghost_pos)
+                self.find_path(modded_maze, pacman_pos, screen, font)
                 return
             if not maze.is_wall(next_pos):
                 self.position = next_pos
@@ -251,7 +255,12 @@ def main():
                     for i in range(len(path) - 1):
                         start_pos = (path[i][0] * CELL_SIZE + CELL_SIZE // 2, path[i][1] * CELL_SIZE + CELL_SIZE // 2)
                         end_pos = (path[i + 1][0] * CELL_SIZE + CELL_SIZE // 2, path[i + 1][1] * CELL_SIZE + CELL_SIZE // 2)
-                        pygame.draw.line(screen, WHITE, start_pos, end_pos, 2)
+                        pygame.draw.line(screen, ghost.color, start_pos, end_pos, 2)
+
+        if pacman_pos in [g.position for g in ghosts]:
+            for ghost in ghosts:
+                if ghost.position == pacman_pos:
+                    ghosts.remove(ghost)
         # if ghost:
         #     ghost.move(maze, pacman_pos, screen, font)
         #     gx, gy = ghost.position

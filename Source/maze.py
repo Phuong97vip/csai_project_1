@@ -170,3 +170,9 @@ class Maze:
                 if not self.is_wall((nx, ny)):
                     neighbors.append((nx, ny))
         return neighbors
+    
+    def copy(self):
+        """Tạo một bản sao của mê cung"""
+        maze = Maze(self.width, self.height)
+        maze.grid = np.copy(self.grid)
+        return maze

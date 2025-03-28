@@ -71,7 +71,7 @@ class Ghost:
             if screen and font:
                 self.show_final_stats(screen, font)
         
-    def move(self, maze, pacman_pos, screen=None, font=None):
+    def move(self, maze, pacman_pos, screen=None, font=None, other_ghost_positions=[]):
         if not self.started:
             return
             
@@ -87,6 +87,8 @@ class Ghost:
         
         if self.path:
             next_pos = self.path[0]
+            if next_pos in other_ghost_positions:
+                return
             if not maze.is_wall(next_pos):
                 self.position = next_pos
                 self.path.pop(0)
@@ -239,7 +241,7 @@ def main():
         # Draw ghost if it exists
         for ghost in ghosts:
             if ghost:
-                ghost.move(maze, pacman_pos, screen, font)
+                ghost.move(maze, pacman_pos, screen, font, [g.position for g in ghosts if g != ghost])
                 gx, gy = ghost.position
                 pygame.draw.circle(screen, ghost.color, 
                                 (gx * CELL_SIZE + CELL_SIZE // 2, gy * CELL_SIZE + CELL_SIZE // 2),

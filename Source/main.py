@@ -79,7 +79,8 @@ class Ghost:
         self.move_delay = 0
         
         # Recalculate path if needed
-        if not self.path or self.move_counter >= self.search_interval:
+        # if not self.path or self.move_counter >= self.search_interval:
+        if not self.path:
             self.find_path(maze, pacman_pos, screen, font)
         
         if self.path:

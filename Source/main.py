@@ -231,6 +231,12 @@ def main():
             pygame.draw.circle(screen, ghost.color, 
                             (gx * CELL_SIZE + CELL_SIZE // 2, gy * CELL_SIZE + CELL_SIZE // 2),
                             CELL_SIZE // 2 - 2)
+            if ghost.path:
+                path = [(gx, gy)] + ghost.path
+                for i in range(len(path) - 1):
+                    start_pos = (path[i][0] * CELL_SIZE + CELL_SIZE // 2, path[i][1] * CELL_SIZE + CELL_SIZE // 2)
+                    end_pos = (path[i + 1][0] * CELL_SIZE + CELL_SIZE // 2, path[i + 1][1] * CELL_SIZE + CELL_SIZE // 2)
+                    pygame.draw.line(screen, WHITE, start_pos, end_pos, 2)
         
         # Display information
         info_text = [

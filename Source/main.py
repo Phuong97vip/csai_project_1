@@ -5,7 +5,7 @@ import time
 import argparse
 import numpy as np
 from maze import Maze
-from search_algorithms import bfs, dfs, ucs
+from search_algorithms import bfs, dfs, ucs,a_star
 
 # Initialize pygame
 pygame.init()
@@ -34,7 +34,8 @@ class Ghost:
             self.color = PINK
         elif algorithm == "UCS":
             self.color = ORANGE
-            
+        elif algorithm =="Astar":
+            self.color = RED    
         self.algorithm = algorithm
         self.position = start_pos
         self.path = []
@@ -55,7 +56,8 @@ class Ghost:
             path, expanded_nodes, search_time, memory_usage = dfs(maze, self.position, pacman_pos)
         elif self.algorithm == "UCS":
             path, expanded_nodes, search_time, memory_usage = ucs(maze, self.position, pacman_pos)
-        
+        elif self.algorithm == "Astar":
+            path, expanded_nodes, search_time, memory_usage = a_star(maze, self.position, pacman_pos)
         self.path = path
         self.total_expanded_nodes += expanded_nodes
         self.total_search_time += search_time
@@ -162,8 +164,8 @@ class Ghost:
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Pac-Man Search Algorithms')
-    parser.add_argument('--algorithm', type=str, choices=['BFS', 'DFS', 'UCS'], 
-                       default='BFS', help='Search algorithm to use (BFS, DFS, or UCS)')
+    parser.add_argument('--algorithm', type=str,  choices=['BFS', 'DFS', 'UCS', 'Astar'], 
+                       default='Astar', help='Search algorithm to use (BFS, DFS, UCS , or Astar)')
     return parser.parse_args()
 
 def main():

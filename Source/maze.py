@@ -146,6 +146,13 @@ class Maze:
             self.grid[y][x] = value
             self.tagged[y][x] = 1
 
+    def find_random_empty(self):
+        while True:
+            x = random.randint(0, self.width - 1)
+            y = random.randint(0, self.height - 1)
+            if self.grid[y][x] == 0:
+                return (x, y)
+
     def is_wall(self, position):
         x, y = position
         if 0 <= x < self.width and 0 <= y < self.height:

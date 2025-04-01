@@ -25,7 +25,8 @@ class PygameRuntime:
             {"label": "Add DFS Ghost (d)", "action": "DFS"},
             {"label": "Add UCS Ghost (u)", "action": "UCS"},
             {"label": "Add A* Ghost (a)", "action": "Astar"},
-            {"label": "Start Game (SPACE)", "action": "START"}
+            {"label": "Start Game (SPACE)", "action": "START"},
+            {"label": "EXIT Game (ESC)", "action": "EXIT"},
         ]
 
     def move_pacman(self, direction):
@@ -112,6 +113,8 @@ class PygameRuntime:
                         if rect.collidepoint(mouse_pos):
                             if button["action"] == "START":
                                 self.start_game()
+                            elif button["action"] == "EXIT":
+                                self.running = False
                             else:
                                 self.add_ghost(button["action"])
                     for j in range(self.maze.width):

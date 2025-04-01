@@ -94,7 +94,7 @@ class Ghost:
     
     def stop(self):
         self.started = False
-        
+
 
     def show_final_stats(self, screen, font):
         """Display final statistics when reaching target"""
@@ -112,7 +112,7 @@ class Ghost:
             f"Average Memory Usage: {avg_memory:.2f} KB",
             f"Number of Searches: {self.search_count}",
             "",
-            "SPACE to reset"
+            "SPACE to continue"
         ]
         
         # Calculate popup size
@@ -144,12 +144,12 @@ class Ghost:
         waiting = True
         while waiting:
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                elif event.type == pygame.KEYDOWN:
+                # if event.type == pygame.QUIT:
+                #     pygame.quit()
+                #     sys.exit()
+                if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         waiting = False
-                    elif event.key == pygame.K_ESCAPE:
-                        pygame.quit()
-                        sys.exit()
+                    # elif event.key == pygame.K_ESCAPE:
+                    #     pygame.quit()
+                    #     sys.exit()

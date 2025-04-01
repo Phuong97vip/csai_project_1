@@ -176,3 +176,4 @@ class Maze:
         maze = Maze(self.width, self.height)
         maze.grid = np.copy(self.grid)
         return maze
+    

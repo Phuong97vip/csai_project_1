@@ -77,6 +77,7 @@ class PygameRuntime:
     def add_ghost(self, algorithm):
         if algorithm not in self.selected_algorithms:
             self.selected_algorithms.append(algorithm)
+            pygame.display.set_caption(f"Pacman Game - {', '.join(self.selected_algorithms)}")
         generated_pos = self.maze.find_random_empty()
         while generated_pos in [ghost.position for ghost in self.ghosts]:
             generated_pos = self.maze.find_random_empty()

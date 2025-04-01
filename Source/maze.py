@@ -79,7 +79,7 @@ class Maze:
         """Tạo một cụm ngẫu nhiên"""
         width, height = size
 
-        print(f"Generating cluster at ({x}, {y}) with size {size}")
+        # print(f"Generating cluster at ({x}, {y}) with size {size}")
         # print(self.grid)
         # print(self.tagged)
 
@@ -176,3 +176,4 @@ class Maze:
         maze = Maze(self.width, self.height)
         maze.grid = np.copy(self.grid)
         return maze
+    

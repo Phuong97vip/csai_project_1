@@ -1,0 +1,14 @@
+# Constants
+WIDTH, HEIGHT = 800, 800
+GRID_SIZE = 20
+CELL_SIZE = WIDTH // GRID_SIZE
+
+# Colors
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+BLUE = (0, 0, 255)
+PINK = (255, 182, 193)
+ORANGE = (255, 165, 0)
+YELLOW = (255, 255, 0)
+GRAY = (128, 128, 128)
+RED = (255, 0, 0)

@@ -48,8 +48,13 @@ class Ghost:
         self.move_delay = 0
         self.reached_target = False
         self.started = False
+        self.stored_pacman_pos = None
         
     def find_path(self, maze, pacman_pos, screen=None, font=None):
+        # update pacman position
+        if pacman_pos != self.stored_pacman_pos:
+            self.stored_pacman_pos = pacman_pos
+
         if self.algorithm == "BFS":
             path, expanded_nodes, search_time, memory_usage = bfs(maze, self.position, pacman_pos)
         elif self.algorithm == "DFS":
@@ -82,7 +87,7 @@ class Ghost:
         
         # Recalculate path if needed
         # if not self.path or self.move_counter >= self.search_interval:
-        if not self.path:
+        if not self.path or self.stored_pacman_pos != pacman_pos:
             self.find_path(maze, pacman_pos, screen, font)
         
         if self.path:
@@ -207,6 +212,7 @@ def main():
                         for i, ghost in enumerate(ghosts):
                             ghost.find_path(maze, pacman_pos, screen, font)
                             ghost.start()
+                        # create ghost when choosing pacman position --> create ghost at initialization
                         # if ghost is None:
                         #     ghost = Ghost(selected_algorithm, (1, 1))
                         #     ghost.find_path(maze, pacman_pos, screen, font)
@@ -238,6 +244,7 @@ def main():
                 grid_x, grid_y = x // CELL_SIZE, y // CELL_SIZE
                 if not maze.is_wall((grid_x, grid_y)):
                     pacman_pos = (grid_x, grid_y)
+                    # create ghost when choosing pacman position --> create ghost at initialization
                     # if ghost is not None:
                     #     ghost = Ghost(selected_algorithm, (1, 1))
                     #     ghost.find_path(maze, pacman_pos, screen, font)

@@ -213,6 +213,26 @@ def main():
                         # ghost.start()
                     else:
                         print("Please set Pac-Man position first by clicking on the maze")
+                elif event.key == pygame.K_UP:
+                    if pacman_pos is not None:
+                        new_pos = (pacman_pos[0], pacman_pos[1] - 1)
+                        if not maze.is_wall(new_pos):
+                            pacman_pos = new_pos
+                elif event.key == pygame.K_DOWN:
+                    if pacman_pos is not None:
+                        new_pos = (pacman_pos[0], pacman_pos[1] + 1)
+                        if not maze.is_wall(new_pos):
+                            pacman_pos = new_pos
+                elif event.key == pygame.K_LEFT:
+                    if pacman_pos is not None:
+                        new_pos = (pacman_pos[0] - 1, pacman_pos[1])
+                        if not maze.is_wall(new_pos):
+                            pacman_pos = new_pos
+                elif event.key == pygame.K_RIGHT:
+                    if pacman_pos is not None:
+                        new_pos = (pacman_pos[0] + 1, pacman_pos[1])
+                        if not maze.is_wall(new_pos):
+                            pacman_pos = new_pos
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 x, y = event.pos
                 grid_x, grid_y = x // CELL_SIZE, y // CELL_SIZE
@@ -221,10 +241,10 @@ def main():
                     # if ghost is not None:
                     #     ghost = Ghost(selected_algorithm, (1, 1))
                     #     ghost.find_path(maze, pacman_pos, screen, font)
+
         
-        # Draw everything
+        # Draw background and maze
         screen.fill(BLACK)
-        
         # Draw maze
         for y in range(GRID_SIZE):
             for x in range(GRID_SIZE):

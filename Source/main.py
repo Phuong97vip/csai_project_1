@@ -71,7 +71,7 @@ class Ghost:
             if screen and font:
                 self.show_final_stats(screen, font)
         
-    def move(self, maze, pacman_pos, screen=None, font=None):
+    def move(self, maze, pacman_pos, screen=None, font=None, other_ghost_positions=[]):
         if not self.started:
             return
             
@@ -81,11 +81,18 @@ class Ghost:
         self.move_delay = 0
         
         # Recalculate path if needed
-        if not self.path or self.move_counter >= self.search_interval:
+        # if not self.path or self.move_counter >= self.search_interval:
+        if not self.path:
             self.find_path(maze, pacman_pos, screen, font)
         
         if self.path:
             next_pos = self.path[0]
+            if next_pos in other_ghost_positions:
+                modded_maze = maze.copy()
+                for ghost_pos in other_ghost_positions:
+                    modded_maze.tag(ghost_pos)
+                self.find_path(modded_maze, pacman_pos, screen, font)
+                return
             if not maze.is_wall(next_pos):
                 self.position = next_pos
                 self.path.pop(0)
@@ -163,22 +170,29 @@ class Ghost:
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Pac-Man Search Algorithms')
-    parser.add_argument('--algorithm', type=str,  choices=['BFS', 'DFS', 'UCS', 'Astar'], 
+    parser.add_argument('--algorithm', type=str, nargs='+', choices=['BFS', 'DFS', 'UCS', 'Astar'], 
                        default='Astar', help='Search algorithm to use (BFS, DFS, UCS , or Astar)')
+
     return parser.parse_args()
 
 def main():
     args = parse_arguments()
-    selected_algorithm = args.algorithm
+    selected_algorithms = args.algorithm
     
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption(f"Pac-Man Search Algorithms - {selected_algorithm}")
+    pygame.display.set_caption(f"Pac-Man Search Algorithms - {', '.join(selected_algorithms)}")
     clock = pygame.time.Clock()
     font = pygame.font.SysFont('Arial', 16)
     
     maze = Maze(GRID_SIZE, GRID_SIZE)
     pacman_pos = None
-    ghost = None
+    ghosts = [None for _ in range(len(selected_algorithms))]
+    ghost_positions = []
+    for i, algorithm in enumerate(selected_algorithms):
+        generated_pos = maze.find_random_empty()
+        while generated_pos in ghost_positions:
+            generated_pos = maze.find_random_empty()
+        ghosts[i] = Ghost(algorithm, generated_pos)
     
     running = True
     while running:
@@ -190,10 +204,13 @@ def main():
                     running = False
                 elif event.key == pygame.K_SPACE:
                     if pacman_pos is not None:
-                        if ghost is None:
-                            ghost = Ghost(selected_algorithm, (1, 1))
+                        for i, ghost in enumerate(ghosts):
                             ghost.find_path(maze, pacman_pos, screen, font)
-                        ghost.start()
+                            ghost.start()
+                        # if ghost is None:
+                        #     ghost = Ghost(selected_algorithm, (1, 1))
+                        #     ghost.find_path(maze, pacman_pos, screen, font)
+                        # ghost.start()
                     else:
                         print("Please set Pac-Man position first by clicking on the maze")
                 elif event.key == pygame.K_UP:
@@ -221,9 +238,10 @@ def main():
                 grid_x, grid_y = x // CELL_SIZE, y // CELL_SIZE
                 if not maze.is_wall((grid_x, grid_y)):
                     pacman_pos = (grid_x, grid_y)
-                    if ghost is not None:
-                        ghost = Ghost(selected_algorithm, (1, 1))
-                        ghost.find_path(maze, pacman_pos, screen, font)
+                    # if ghost is not None:
+                    #     ghost = Ghost(selected_algorithm, (1, 1))
+                    #     ghost.find_path(maze, pacman_pos, screen, font)
+
         
         # Draw background and maze
         screen.fill(BLACK)
@@ -245,16 +263,40 @@ def main():
                             CELL_SIZE // 2 - 2)
         
         # Draw ghost if it exists
-        if ghost:
-            ghost.move(maze, pacman_pos, screen, font)
-            gx, gy = ghost.position
-            pygame.draw.circle(screen, ghost.color, 
-                            (gx * CELL_SIZE + CELL_SIZE // 2, gy * CELL_SIZE + CELL_SIZE // 2),
-                            CELL_SIZE // 2 - 2)
+        for ghost in ghosts:
+            if ghost:
+                ghost.move(maze, pacman_pos, screen, font, [g.position for g in ghosts if g != ghost])
+                gx, gy = ghost.position
+                pygame.draw.circle(screen, ghost.color, 
+                                (gx * CELL_SIZE + CELL_SIZE // 2, gy * CELL_SIZE + CELL_SIZE // 2),
+                                CELL_SIZE // 2 - 2)
+                if ghost.path:
+                    path = [(gx, gy)] + ghost.path
+                    for i in range(len(path) - 1):
+                        start_pos = (path[i][0] * CELL_SIZE + CELL_SIZE // 2, path[i][1] * CELL_SIZE + CELL_SIZE // 2)
+                        end_pos = (path[i + 1][0] * CELL_SIZE + CELL_SIZE // 2, path[i + 1][1] * CELL_SIZE + CELL_SIZE // 2)
+                        pygame.draw.line(screen, ghost.color, start_pos, end_pos, 2)
+
+        if pacman_pos in [g.position for g in ghosts]:
+            for ghost in ghosts:
+                if ghost.position == pacman_pos:
+                    ghosts.remove(ghost)
+        # if ghost:
+        #     ghost.move(maze, pacman_pos, screen, font)
+        #     gx, gy = ghost.position
+        #     pygame.draw.circle(screen, ghost.color, 
+        #                     (gx * CELL_SIZE + CELL_SIZE // 2, gy * CELL_SIZE + CELL_SIZE // 2),
+        #                     CELL_SIZE // 2 - 2)
+        #     if ghost.path:
+        #         path = [(gx, gy)] + ghost.path
+        #         for i in range(len(path) - 1):
+        #             start_pos = (path[i][0] * CELL_SIZE + CELL_SIZE // 2, path[i][1] * CELL_SIZE + CELL_SIZE // 2)
+        #             end_pos = (path[i + 1][0] * CELL_SIZE + CELL_SIZE // 2, path[i + 1][1] * CELL_SIZE + CELL_SIZE // 2)
+        #             pygame.draw.line(screen, WHITE, start_pos, end_pos, 2)
         
         # Display information
         info_text = [
-            f"Algorithm: {selected_algorithm}",
+            f"Algorithm: {', '.join(selected_algorithms)}",
             f"Pac-Man Position: {pacman_pos if pacman_pos else 'Not set'}",
             "",
             "Instructions:",

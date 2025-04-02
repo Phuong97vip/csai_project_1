@@ -16,6 +16,7 @@ class PygameRuntime:
         self.pacman_pos = (1, 1)
         self.ghosts = []
         self.selected_algorithms = []
+        self.click_mode = "MOVE_PACMAN"
         self.screen_color = BLACK
         self.wall_color = GRAY
         self.path_color = BLACK
@@ -55,6 +56,12 @@ class PygameRuntime:
             ghost.stop()
         self.game_started = False
 
+    def change_click_mode(self, mode):
+        if self.click_mode == mode:
+            self.click_mode = "MOVE_PACMAN"
+        else:
+            self.click_mode = mode
+
     def handle_game_input(self):
         for event in pygame.event.get():
             match event.type:
@@ -75,14 +82,16 @@ class PygameRuntime:
                         case pygame.K_RIGHT:
                             self.move_pacman("RIGHT")
 
-    def add_ghost(self, algorithm):
+    def add_ghost(self, algorithm, position):
         if algorithm not in self.selected_algorithms:
             self.selected_algorithms.append(algorithm)
             pygame.display.set_caption(f"Pacman Game - {', '.join(self.selected_algorithms)}")
-        generated_pos = self.maze.find_random_empty()
-        while generated_pos in [ghost.position for ghost in self.ghosts]:
-            generated_pos = self.maze.find_random_empty()
-        new_ghost = Ghost(algorithm, generated_pos)
+
+        # selected_pos = position if position else self.maze.find_random_empty()    
+        # while selected_pos in [ghost.position for ghost in self.ghosts] and position is None:
+        #     selected_pos = self.maze.find_random_empty()
+        # print(position)
+        new_ghost = Ghost(algorithm, position)
         self.ghosts.append(new_ghost)
 
     def handle_settings_input(self):
@@ -95,15 +104,16 @@ class PygameRuntime:
                         case pygame.K_ESCAPE:
                             self.running = False
                         case pygame.K_b:
-                            self.add_ghost("BFS")
+                            self.change_click_mode("BFS")
                         case pygame.K_d:
-                            self.add_ghost("DFS")
+                            self.change_click_mode("DFS")
                         case pygame.K_u:
-                            self.add_ghost("UCS")
+                            self.change_click_mode("UCS")
                         case pygame.K_a:
-                            self.add_ghost("Astar")
+                            self.change_click_mode("Astar")
                         case pygame.K_SPACE:
                             self.start_game()
+                    # print(self.click_mode)
                 case pygame.MOUSEBUTTONDOWN:
                     mouse_pos = pygame.mouse.get_pos()
                     for i, button in enumerate(self.buttons):
@@ -116,16 +126,21 @@ class PygameRuntime:
                             elif button["action"] == "EXIT":
                                 self.running = False
                             else:
-                                self.add_ghost(button["action"])
+                                self.change_click_mode(button["action"])
                     for j in range(self.maze.width):
                         x = j * CELL_SIZE
                         for k in range(self.maze.height):
                             y = k * CELL_SIZE
                             rect = pygame.Rect(x, y, CELL_SIZE, CELL_SIZE)
                             if rect.collidepoint(mouse_pos):
-                                if not (self.maze.is_wall((j, k)) or self.pacman_pos in [ghost.position for ghost in self.ghosts]):
-                                    self.pacman_pos = (j, k)
-
+                                if not self.maze.is_wall((j, k)):
+                                    if self.click_mode == "MOVE_PACMAN":
+                                        if self.pacman_pos not in [ghost.position for ghost in self.ghosts]:
+                                            self.pacman_pos = (j, k)
+                                    else:
+                                        if (j,k) not in [ghost.position for ghost in self.ghosts] and self.pacman_pos != (j, k):
+                                            self.add_ghost(self.click_mode, (j, k))
+                                            
 
     def draw_maze(self):
         # Draw background and maze
@@ -181,9 +196,14 @@ class PygameRuntime:
             y = 20 + i * (40 + 10)
             rect = pygame.Rect(x, y, 150, 40)
             pygame.draw.rect(self.screen, GRAY, rect)
-            pygame.draw.rect(self.screen, BLACK, rect, 2)
-
+            
             text_surface = self.font.render(button["label"], True, BLACK)
+            if (self.click_mode == button["action"]):
+                pygame.draw.rect(self.screen, WHITE, rect, 2)
+                text_surface = self.font.render(button["label"], True, WHITE)
+            else:
+                pygame.draw.rect(self.screen, BLACK, rect, 2)
+
             text_rect = text_surface.get_rect(center=rect.center)
             self.screen.blit(text_surface, text_rect)
 
